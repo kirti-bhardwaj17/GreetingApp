@@ -57,15 +57,23 @@ public class GreetingController {
     }
 
     // ✅ Update Greeting
-    @PutMapping
-    public Greeting updateGreeting(@RequestBody Greeting greeting) {
-        return new Greeting(counter.incrementAndGet(), "Updated Greeting: " + greeting.getMessage());
-    }
+//    @PutMapping
+//    public Greeting updateGreeting(@RequestBody Greeting greeting) {
+//        return new Greeting(counter.incrementAndGet(), "Updated Greeting: " + greeting.getMessage());
+//    }
 
     // ✅ Delete Greeting (Returns Confirmation)
     @DeleteMapping
     public Greeting deleteGreeting() {
         return new Greeting(0, "Greeting deleted successfully!");
     }
+
+    @PutMapping("/{id}")
+    public Greeting updateGreeting(@PathVariable Long id, @RequestBody Greeting greeting) {
+        return greetingService.updateGreeting(id, greeting);
+    }
+
+
+
 
 }
