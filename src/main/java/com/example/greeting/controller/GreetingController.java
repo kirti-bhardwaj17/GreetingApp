@@ -18,8 +18,12 @@ public class GreetingController {
     private GreetingService greetingService;
 
     @GetMapping("/service")
-    public Greeting getServiceGreeting() {
-        return new Greeting(counter.incrementAndGet(), greetingService.getGreetingMessage());
+    public Greeting getServiceGreeting(
+            @RequestParam(value = "firstName", required = false) String firstName,
+            @RequestParam(value = "lastName", required = false) String lastName) {
+
+        String message = greetingService.getGreetingMessage(firstName, lastName);
+        return new Greeting(counter.incrementAndGet(), message);
     }
 
 
