@@ -53,6 +53,15 @@ public class GreetingService {
         }
         return new Greeting(0L, "Greeting not found!");
     }
+    public String deleteGreeting(Long id) {
+        if (greetingRepository.existsById(id)) {
+            greetingRepository.deleteById(id);  // ✅ Delete the greeting from DB
+            return "Greeting with ID " + id + " deleted successfully!";
+        } else {
+            return "Greeting with ID " + id + " not found!";
+        }
+    }
+
 
 
 }
