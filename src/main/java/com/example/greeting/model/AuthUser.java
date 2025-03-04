@@ -23,7 +23,7 @@ public class AuthUser {
     @NotBlank
     @Pattern(regexp = "^[A-Z][a-z]*$", message = "First letter must be uppercase")
     private String lastName;
-
+//adding email
     @NotBlank
     @Email(message = "Invalid email format")
     @Column(unique = true)
