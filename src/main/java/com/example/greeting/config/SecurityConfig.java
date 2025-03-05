@@ -3,29 +3,26 @@ package com.example.greeting.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("admin123")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        http
+                .csrf(csrf -> csrf.disable()) // ✅ Disable CSRF for APIs
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/h2/**",          // ✅ Allow H2 Console
+                                "/swagger-ui/**",  // ✅ Allow Swagger UI
+                                "/v3/api-docs/**", // ✅ Allow API Docs
+                                "/auth/**"         // ✅ Allow Authentication APIs
+                        ).permitAll()
+                        .anyRequest().permitAll() // 🚨 Open everything for testing (change later)
+                )
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // ✅ Allow Frames for H2
+
         return http.build();
     }
 }

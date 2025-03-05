@@ -1,0 +1,6 @@
+2025-03-05 13:27:39.864650+05:30 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *[*]USERS"; SQL statement:
+SELECT *USERS [42000-232]
+2025-03-05 13:27:59.405040+05:30 jdbc[24]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT *[*]USERS GREETING"; SQL statement:
+SELECT *USERS GREETING [42000-232]

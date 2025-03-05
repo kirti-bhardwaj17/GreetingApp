@@ -17,11 +17,13 @@ public class AuthUserService {
     private final AuthUserRepository authUserRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService; // Inject EmailService
 
-    public AuthUserService(AuthUserRepository authUserRepository, JwtUtil jwtUtil) {
+    public AuthUserService(AuthUserRepository authUserRepository, JwtUtil jwtUtil, EmailService emailService) {
         this.authUserRepository = authUserRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -37,6 +39,12 @@ public class AuthUserService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         authUserRepository.save(user);
+
+        // 📧 Send Welcome Email
+        String subject = "Welcome to Our Website!";
+        String message = "Hello " + user.getFirstName() + ",<br>Thank you for registering!";
+        emailService.sendEmail(user.getEmail(), subject, message);
+
         return "User registered successfully!";
     }
 
