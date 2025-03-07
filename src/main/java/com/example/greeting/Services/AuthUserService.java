@@ -2,6 +2,7 @@ package com.example.greeting.Services;
 
 import com.example.greeting.dto.AuthUserDTO;
 import com.example.greeting.dto.LoginDTO;
+import com.example.greeting.dto.ResetPasswordDTO;
 import com.example.greeting.model.AuthUser;
 import com.example.greeting.repository.AuthUserRepository;
 import com.example.greeting.utils.JwtUtil;
@@ -17,7 +18,7 @@ public class AuthUserService {
     private final AuthUserRepository authUserRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final EmailService emailService; // Inject EmailService
+    private final EmailService emailService;
 
     public AuthUserService(AuthUserRepository authUserRepository, JwtUtil jwtUtil, EmailService emailService) {
         this.authUserRepository = authUserRepository;
@@ -60,7 +61,49 @@ public class AuthUserService {
             throw new IllegalArgumentException("Invalid email or password!");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
-        return token;
+        return jwtUtil.generateToken(user.getEmail());
+    }
+
+    @Transactional
+    public String forgotPassword(String email, String newPassword) {
+        Optional<AuthUser> userOptional = authUserRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("Sorry! We cannot find the user email: " + email);
+        }
+
+        AuthUser user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(newPassword)); // Hash new password
+        authUserRepository.save(user);
+
+        // 📧 Send Confirmation Email
+        String subject = "Password Reset Successful";
+        String message = "Your password has been successfully reset.";
+        emailService.sendEmail(user.getEmail(), subject, message);
+
+        return "Password has been changed successfully!";
+    }
+
+
+    @Transactional
+    public String resetPassword(String email, ResetPasswordDTO resetPasswordDTO) {
+        Optional<AuthUser> userOptional = authUserRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+
+        AuthUser user = userOptional.get();
+
+        // Validate current password
+        if (!passwordEncoder.matches(resetPasswordDTO.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect!");
+        }
+
+        // Update new password
+        user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        authUserRepository.save(user);
+
+        return "Password reset successfully!";
     }
 }

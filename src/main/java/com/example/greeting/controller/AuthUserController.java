@@ -2,11 +2,14 @@ package com.example.greeting.controller;
 
 import com.example.greeting.dto.AuthUserDTO;
 import com.example.greeting.dto.LoginDTO;
+import com.example.greeting.dto.ResetPasswordDTO;
 import com.example.greeting.Services.AuthUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,5 +33,26 @@ public class AuthUserController {
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginDTO loginDTO) {
         String token = authUserService.loginUser(loginDTO);
         return ResponseEntity.ok().body("{\"message\": \"Login successful!\", \"token\": \"" + token + "\"}");
+    }
+
+    @Operation(summary = "Forgot Password", description = "Allows users to reset their password if they forgot it.")
+    @PutMapping("/forgotPassword/{email}")
+    public ResponseEntity<String> forgotPassword(
+            @PathVariable String email,
+            @Valid @RequestBody Map<String, String> requestBody) {
+
+        String newPassword = requestBody.get("password");
+        String response = authUserService.forgotPassword(email, newPassword);
+        return ResponseEntity.ok().body(response);
+    }
+
+
+    @Operation(summary = "Reset Password", description = "Allows a user to reset their password while logged in.")
+    @PutMapping("/resetPassword/{email}")
+    public ResponseEntity<String> resetPassword(
+            @PathVariable String email,
+            @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        String response = authUserService.resetPassword(email, resetPasswordDTO);
+        return ResponseEntity.ok().body("{\"message\": \"" + response + "\"}");
     }
 }
